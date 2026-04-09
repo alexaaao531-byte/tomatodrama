@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小番茄小剧场·天命圈之约 — 袁清渠·设计制作</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dg: #060c08;
+      --mg: #0d1a12;
+      --lg: #152010;
+      --gold: #d4af37;
+      --gold-bright: #f0c96e;
+      --gold-dim: rgba(212,175,55,0.12);
+      --orange: #e8602a;
+      --orange-dim: rgba(232,96,42,0.12);
+      --text: #e8e0d0;
+      --muted: #7a907a;
+      --border: rgba(212,175,55,0.12);
+      --font: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--dg); color: var(--text); font-family: var(--font); line-height: 1.7; overflow-x: hidden; }
+
+    /* ===== PARTICLES ===== */
+    #particles { position: fixed; top:0; left:0; width:100%; height:100%; z-index:1; pointer-events:none; }
+    .particle { position:absolute; background:var(--gold); border-radius:50%; animation:floatUp linear infinite; }
+    @keyframes floatUp {
+      0%   { transform:translateY(110vh) scale(0); opacity:0; }
+      10%  { opacity:0.4; }
+      90%  { opacity:0.2; }
+      100% { transform:translateY(-5vh) scale(1); opacity:0; }
+    }
+
+    /* ===== NOISE GRAIN ===== */
+    .grain {
+      position:fixed; top:0; left:0; width:100%; height:100%; z-index:2; pointer-events:none; opacity:0.035;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ===== NAV ===== */
+    nav {
+      position:fixed; top:0; width:100%; z-index:1000;
+      background:rgba(6,12,8,0.88); backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border);
+      padding:14px 48px; display:flex; justify-content:space-between; align-items:center;
+    }
+    .nav-logo { font-weight:900; letter-spacing:3px; color:var(--gold); font-size:15px; display:flex; align-items:center; gap:12px; }
+    .nav-logo span { font-weight:300; font-size:11px; color:var(--muted); border-left:1px solid var(--muted); padding-left:12px; letter-spacing:2px; }
+    .nav-links { display:flex; gap:28px; }
+    .nav-link { color:var(--muted); font-size:11px; text-decoration:none; letter-spacing:2px; transition:.25s; cursor:pointer; background:none; border:none; font-family:var(--font); padding:0; }
+    .nav-link:hover { color:var(--gold); }
+
+    /* ===== SCROLL PROGRESS ===== */
+    #progress { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg, var(--gold), var(--orange)); z-index:2000; transition:width .1s; }
+
+    /* ===== SECTIONS ===== */
+    section { position:relative; z-index:10; padding:110px 24px; }
+    .container { max-width:920px; margin:0 auto; }
+
+    .section-header { margin-bottom:56px; }
+    .section-eyebrow { font-size:10px; letter-spacing:4px; color:var(--orange); margin-bottom:10px; display:block; }
+    .section-title { font-size:clamp(24px,4vw,36px); font-weight:900; color:var(--gold-bright); letter-spacing:2px; }
+    .section-rule { width:48px; height:2px; background:linear-gradient(90deg, var(--gold), transparent); margin-top:14px; }
+
+    /* ===== YQQ BADGE ===== */
+    .yqq-badge {
+      display:inline-block; font-size:9px; letter-spacing:4px;
+      color:var(--gold); border:1px solid rgba(212,175,55,0.3);
+      padding:3px 10px; margin-bottom:14px; text-transform:uppercase;
+    }
+
+    /* ===== HERO ===== */
+    #hero {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; padding:80px 24px;
+      background:radial-gradient(ellipse at 50% 55%, #12271a 0%, #060c08 72%);
+      border-bottom:1px solid var(--border);
+    }
+    .hero-inner { max-width:720px; }
+    .hero-ep { font-size:11px; letter-spacing:5px; color:var(--muted); margin-bottom:20px; }
+    .hero-title {
+      font-size:clamp(44px,9vw,80px); font-weight:900; line-height:1.05;
+      letter-spacing:-1px; color:#fff; margin:10px 0 18px;
+      text-shadow:0 0 40px rgba(212,175,55,0.2);
+    }
+    .hero-title em { font-style:normal; color:var(--gold-bright); }
+    .hero-theme {
+      font-size:clamp(13px,2vw,16px); color:var(--muted); line-height:1.9;
+      max-width:520px; margin:0 auto 44px;
+      padding:18px 24px; border-left:2px solid rgba(212,175,55,0.4); text-align:left;
+      background:rgba(212,175,55,0.04);
+    }
+
+    /* 好友列表组件 */
+    .friend-panel {
+      display:inline-block; background:rgba(5,10,6,0.9); border:1px solid var(--border);
+      padding:18px 24px; text-align:left; min-width:300px; margin-bottom:44px;
+      font-family:'Courier New', monospace;
+    }
+    .friend-panel-title { font-size:9px; letter-spacing:4px; color:var(--muted); margin-bottom:14px; text-transform:uppercase; }
+    .friend-row { display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+    .f-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .f-online { background:#3fa060; box-shadow:0 0 8px #3fa060; }
+    .f-offline { background:#2a2a2a; }
+    .f-name { flex:1; }
+    .f-status { font-size:10px; color:var(--muted); }
+    .f-offline-name { color:#3a3a3a; }
+    .f-days { color:#2e2e2e; font-size:10px; }
+
+    .hero-btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+    .btn-gold {
+      background:linear-gradient(135deg, #c8a840, #e8602a);
+      color:#060c08; border:none; padding:14px 38px; font-size:14px;
+      font-weight:700; cursor:pointer; font-family:var(--font); letter-spacing:2px;
+      transition:.2s; clip-path:polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    }
+    .btn-gold:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(200,160,64,0.35); }
+    .btn-outline {
+      background:transparent; color:var(--gold); border:1px solid rgba(212,175,55,0.4);
+      padding:14px 38px; font-size:14px; cursor:pointer; font-family:var(--font);
+      letter-spacing:2px; transition:.2s;
+    }
+    .btn-outline:hover { background:var(--gold-dim); border-color:var(--gold); }
+
+    /* ===== CHARACTER CARDS ===== */
+    #chars { background:rgba(0,0,0,0.2); }
+    .char-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; }
+    .char-card {
+      background:rgba(255,255,255,0.02); border:1px solid var(--border);
+      padding:28px 20px; cursor:pointer; transition:.3s; position:relative; overflow:hidden;
+    }
+    .char-card::after {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background:linear-gradient(90deg, transparent, var(--gold), transparent);
+      transform:scaleX(0); transition:transform .3s;
+    }
+    .char-card:hover { border-color:rgba(212,175,55,0.35); transform:translateY(-4px); background:rgba(212,175,55,0.04); }
+    .char-card:hover::after { transform:scaleX(1); }
+    .char-icon { font-size:36px; margin-bottom:14px; display:block; }
+    .char-name { font-size:17px; font-weight:700; color:var(--gold); margin-bottom:4px; }
+    .char-role { font-size:9px; color:var(--orange); letter-spacing:3px; margin-bottom:10px; }
+    .char-tags { font-size:11px; color:var(--muted); margin-bottom:10px; }
+    .char-desc { font-size:12px; color:var(--muted); line-height:1.7; }
+    .char-quote {
+      display:none; margin-top:14px; padding:12px 14px;
+      background:rgba(212,175,55,0.07); border-left:2px solid var(--gold);
+      font-size:12px; color:var(--text); line-height:1.7; font-style:italic;
+      animation:fadeSlide .3s ease;
+    }
+    .char-quote.open { display:block; }
+    @keyframes fadeSlide { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ===== STORY TIMELINE ===== */
+    #story { background:radial-gradient(ellipse at 20% 50%, rgba(13,26,18,0.6) 0%, transparent 60%); }
+    .story-block {
+      background:rgba(255,255,255,0.018); border:1px solid var(--border);
+      border-left:3px solid var(--gold); padding:36px 36px 36px 40px;
+      margin-bottom:28px; position:relative; transition:.3s; cursor:pointer;
+    }
+    .story-block:hover { background:rgba(212,175,55,0.03); border-left-color:var(--gold-bright); }
+    .act-label {
+      font-size:9px; letter-spacing:4px; color:var(--orange); font-weight:700;
+      display:block; margin-bottom:8px; text-transform:uppercase;
+    }
+    .story-title { font-size:20px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .story-summary { font-size:13px; color:var(--muted); margin-bottom:0; }
+    .expand-hint { font-size:10px; color:rgba(212,175,55,0.4); margin-top:8px; letter-spacing:2px; transition:.2s; }
+    .story-block:hover .expand-hint { color:var(--gold); }
+
+    .story-body {
+      display:none; margin-top:24px; padding-top:24px;
+      border-top:1px solid var(--border); animation:fadeSlide .35s ease;
+    }
+    .story-body.open { display:block; }
+
+    .scene-note {
+      background:rgba(0,0,0,0.35); border-left:2px solid var(--muted);
+      padding:12px 18px; margin:16px 0; font-size:13px; color:var(--muted);
+      font-style:italic; line-height:1.7;
+    }
+    .flashback {
+      background:rgba(212,175,55,0.06); border:1px dashed rgba(212,175,55,0.25);
+      padding:16px 20px; margin:16px 0; font-size:13px; color:var(--gold-bright);
+      font-style:italic; line-height:1.7; text-align:center;
+    }
+    .flashback::before { content:'— 闪回 —'; display:block; font-size:9px; letter-spacing:4px; color:var(--muted); margin-bottom:8px; }
+
+    /* 对话气泡 */
+    .dialog-box { margin:18px 0; display:flex; flex-direction:column; gap:10px; }
+    .bubble { padding:12px 18px; font-size:13px; line-height:1.7; position:relative; max-width:85%; }
+    .bubble::before { content:attr(data-name); font-size:9px; color:var(--gold); display:block; margin-bottom:4px; letter-spacing:2px; font-weight:700; }
+    .bubble.tomato {
+      background:rgba(232,96,42,0.1); border-right:2px solid var(--orange);
+      align-self:flex-end; text-align:right;
+    }
+    .bubble.tomato::before { text-align:right; }
+    .bubble.mummy {
+      background:rgba(212,175,55,0.08); border-left:2px solid rgba(212,175,55,0.5);
+      align-self:flex-start;
+    }
+    .bubble.newbie {
+      background:rgba(90,180,120,0.08); border-left:2px solid rgba(90,180,120,0.4);
+      align-self:flex-start;
+    }
+    .bubble.newbie::before { color:#5ab478; }
+    .bubble.sys {
+      align-self:center; text-align:center; color:var(--muted); font-size:12px;
+      font-style:italic; background:none; border:none; max-width:100%;
+    }
+    .bubble.sys::before { display:none; }
+    .story-para { font-size:14px; color:#b0bdb0; line-height:1.85; margin:14px 0; }
+    .story-para strong { color:var(--text); font-weight:500; }
+
+    /* ===== CLIMAX ===== */
+    #climax {
+      background:radial-gradient(ellipse at 50% 40%, #16280f 0%, #060c08 70%);
+      border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      text-align:center;
+    }
+    .circle-wrap { position:relative; width:280px; height:280px; margin:0 auto 50px; }
+    .c-ring {
+      position:absolute; border-radius:50%; border:1px solid;
+      top:50%; left:50%; transform:translate(-50%,-50%);
+    }
+    .r1 { width:280px; height:280px; border-color:rgba(212,175,55,0.08); }
+    .r2 { width:200px; height:200px; border-color:rgba(212,175,55,0.18); animation:pulsate 3.5s ease-in-out infinite; }
+    .r3 { width:124px; height:124px; border-color:rgba(232,96,42,0.35); animation:pulsate 2.5s ease-in-out infinite .4s; }
+    .r-core {
+      width:52px; height:52px; border-radius:50%;
+      background:radial-gradient(circle, var(--orange) 0%, var(--gold) 100%);
+      display:flex; align-items:center; justify-content:center;
+      animation:glow-core 2.5s ease-in-out infinite;
+    }
+    .r-core span { font-size:9px; color:#060c08; font-weight:900; letter-spacing:1px; white-space:nowrap; }
+    @keyframes pulsate {
+      0%,100% { transform:translate(-50%,-50%) scale(1); opacity:.6; }
+      50% { transform:translate(-50%,-50%) scale(1.07); opacity:1; }
+    }
+    @keyframes glow-core {
+      0%,100% { box-shadow:0 0 18px var(--orange); }
+      50% { box-shadow:0 0 40px var(--gold), 0 0 80px rgba(212,175,55,0.3); }
+    }
+    .map-ping {
+      position:absolute; width:8px; height:8px; border-radius:50%;
+      background:var(--orange); box-shadow:0 0 10px var(--orange);
+      animation:blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.2;} }
+
+    .climax-headline { font-size:clamp(18px,4vw,30px); font-weight:900; color:#fff; margin-bottom:14px; letter-spacing:2px; }
+    .climax-copy { font-size:14px; color:var(--muted); line-height:1.9; max-width:560px; margin:0 auto 30px; }
+    .danmu {
+      display:inline-block; background:rgba(232,96,42,0.1); border:1px solid rgba(232,96,42,0.5);
+      color:var(--orange); font-size:15px; padding:12px 32px; letter-spacing:2px;
+      animation:danmu-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes danmu-pulse {
+      0%,100% { box-shadow:0 0 10px rgba(232,96,42,0.2); }
+      50% { box-shadow:0 0 28px rgba(232,96,42,0.5); }
+    }
+    .climax-stats { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-top:48px; }
+    .c-stat {
+      border:1px solid var(--border); padding:20px 28px; text-align:center;
+      min-width:150px; background:rgba(255,255,255,0.02);
+    }
+    .c-stat-icon { font-size:22px; margin-bottom:8px; }
+    .c-stat-label { font-size:11px; color:var(--gold); font-weight:700; margin-bottom:4px; letter-spacing:1px; }
+    .c-stat-text { font-size:11px; color:var(--muted); }
+
+    /* ===== ANALYSIS ===== */
+    #analysis { background:rgba(0,0,0,0.15); }
+    .tab-row { display:flex; margin-bottom:28px; border:1px solid rgba(212,175,55,0.2); width:fit-content; }
+    .tab-btn {
+      padding:10px 30px; font-size:12px; font-family:var(--font); letter-spacing:2px;
+      cursor:pointer; border:none; transition:.25s;
+    }
+    .tab-btn.on { background:var(--gold); color:#060c08; font-weight:700; }
+    .tab-btn:not(.on) { background:transparent; color:var(--muted); }
+    .tab-btn:not(.on):hover { background:var(--gold-dim); color:var(--gold); }
+
+    .tab-pane { display:none; animation:fadeSlide .3s ease; }
+    .tab-pane.on { display:block; }
+    .ana-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    @media(max-width:600px){ .ana-grid { grid-template-columns:1fr; } }
+    .ana-card {
+      padding:24px; background:rgba(212,175,55,0.04);
+      border:1px dashed rgba(212,175,55,0.18);
+    }
+    .ana-icon { font-size:24px; margin-bottom:10px; }
+    .ana-title { font-size:14px; font-weight:700; color:var(--gold-bright); margin-bottom:8px; }
+    .ana-text { font-size:12px; color:var(--muted); line-height:1.8; }
+
+    /* ===== SOCIAL ===== */
+    #social { background:radial-gradient(ellipse at 80% 50%, rgba(13,26,18,0.5) 0%, transparent 60%); }
+    .social-wrap { max-width:620px; margin:0 auto; }
+    .social-card {
+      background:rgba(255,255,255,0.02); border:1px solid rgba(212,175,55,0.2);
+      padding:32px;
+    }
+    .social-head { display:flex; align-items:center; gap:14px; padding-bottom:20px; border-bottom:1px solid var(--border); margin-bottom:24px; }
+    .social-avatar {
+      width:50px; height:50px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg, var(--gold), var(--orange));
+      display:flex; align-items:center; justify-content:center; font-size:22px;
+    }
+    .social-name { font-weight:700; color:var(--gold); font-size:14px; }
+    .social-handle { font-size:11px; color:var(--muted); margin-top:2px; letter-spacing:1px; }
+    .comment { border-left:2px solid rgba(212,175,55,0.2); padding:12px 16px; margin-bottom:14px; }
+    .comment-user { font-size:10px; color:var(--orange); letter-spacing:2px; margin-bottom:5px; }
+    .comment-text { font-size:13px; color:var(--text); line-height:1.7; }
+    .comment-likes { font-size:10px; color:var(--muted); margin-top:5px; }
+    .viral-box {
+      margin-top:20px; padding:20px; background:rgba(232,96,42,0.07);
+      border:1px solid rgba(232,96,42,0.2);
+    }
+    .viral-label { font-size:9px; letter-spacing:3px; color:var(--orange); margin-bottom:10px; display:block; }
+    .viral-text { font-size:12px; color:var(--muted); line-height:1.8; }
+    .copy-btn {
+      width:100%; margin-top:20px; padding:13px; background:transparent;
+      border:1px solid rgba(212,175,55,0.35); color:var(--gold); font-size:13px;
+      font-family:var(--font); cursor:pointer; letter-spacing:2px; transition:.25s;
+    }
+    .copy-btn:hover { background:var(--gold-dim); }
+    .copy-btn.done { color:var(--gold-bright); background:var(--gold-dim); }
+
+    /* ===== ENDING ===== */
+    #ending {
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      text-align:center; padding:80px 24px;
+      background:radial-gradient(ellipse at 50% 75%, #0e1e0e 0%, #030605 100%);
+      border-top:1px solid var(--border);
+    }
+    .ending-inner { max-width:560px; }
+    .ending-friends { font-family:'Courier New', monospace; font-size:12px; color:var(--muted); margin-bottom:48px; line-height:2.2; }
+    .ending-friends .gone { color:#1e2e1e; }
+    .ending-rule { width:60px; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent); margin:0 auto 36px; }
+    .ending-q1 { font-size:clamp(16px,3vw,22px); color:var(--text); line-height:1.8; margin-bottom:10px; }
+    .ending-q2 { font-size:13px; color:var(--muted); letter-spacing:2px; margin-bottom:48px; }
+    .ending-last { font-size:clamp(14px,2.5vw,18px); color:var(--gold-bright); font-weight:700; letter-spacing:3px; margin-bottom:48px; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      padding:60px 24px; text-align:center;
+      background:#020504; border-top:1px solid rgba(212,175,55,0.08);
+    }
+    .yqq-big { font-size:26px; font-weight:900; letter-spacing:12px; color:var(--gold); margin-bottom:8px; }
+    .yqq-sub { font-size:9px; letter-spacing:4px; color:var(--muted); }
+    .footer-copy { font-size:10px; color:#252e25; margin-top:24px; }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal { opacity:0; transform:translateY(22px); transition:opacity .65s ease, transform .65s ease; }
+    .reveal.in { opacity:1; transform:translateY(0); }
+
+    @media(max-width:768px){
+      nav { padding:14px 18px; }
+      .nav-links { display:none; }
+      section { padding:80px 16px; }
+      .story-block { padding:24px 20px; }
+      .bubble.tomato { align-self:flex-start; text-align:left; border-right:none; border-left:2px solid var(--orange); }
+      .bubble.tomato::before { text-align:left; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="particles"></div>
+<div class="grain"></div>
+
+<nav>
+  <div class="nav-logo">QINGQU <span>小番茄小剧场</span></div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="go('hero')">首页</button>
+    <button class="nav-link" onclick="go('chars')">角色档案</button>
+    <button class="nav-link" onclick="go('story')">故事纲要</button>
+    <button class="nav-link" onclick="go('climax')">天命圈</button>
+    <button class="nav-link" onclick="go('analysis')">创意内核</button>
+    <button class="nav-link" onclick="go('social')">传播分析</button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="yqq-badge">Produced by Qingqu · EP.01</div>
+    <p class="hero-ep">小番茄小剧场 第一集</p>
+    <h1 class="hero-title"><em>天命圈</em>之约</h1>
+    <div class="hero-theme">
+      小番茄寻找失联三年的“固排”，在熟悉的雨林地图，完成一场迟到了一千零九十五天的约定。
+    </div>
+
+    <div class="friend-panel reveal">
+      <div class="friend-panel-title">▍ 好友列表</div>
+      <div class="friend-row">
+        <div class="f-dot f-online"></div>
+        <span class="f-name">木乃伊</span>
+        <span class="f-status">● 游戏中</span>
+      </div>
+      <div class="friend-row">
+        <div class="f-dot f-online"></div>
+        <span class="f-name">萌新_01</span>
+        <span class="f-status">● 大厅</span>
+      </div>
+      <div class="friend-row">
+        <div class="f-dot f-offline"></div>
+        <span class="f-name f-offline-name">老枪</span>
+        <span class="f-days">上次在线：1095天前</span>
+      </div>
+    </div>
+
+    <div class="hero-btns">
+      <button class="btn-gold" onclick="go('story')">▶ 进入回忆</button>
+      <button class="btn-outline" onclick="go('chars')">查看角色档案</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CHARS ===== -->
+<section id="chars">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">CAST · 角色档案</span>
+      <div class="section-title">这一局的人</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="char-grid">
+      <div class="char-card reveal" onclick="toggleChar(this, '嘴上说"删号跑路的家伙"，\n手上存着三年前最后那局的截图，从没删过。')">
+        <span class="char-icon">🍅</span>
+        <div class="char-name">小番茄</div>
+        <div class="char-role">主视角 · 情感核心</div>
+        <div class="char-tags">嘴贫搞怪｜情感细腻｜念旧</div>
+        <div class="char-desc">大大咧咧的外壳里封存着一段没说完的话。那套和老友约好的战术被TA原封不动地记了三年。</div>
+        <div class="char-quote"></div>
+      </div>
+      <div class="char-card reveal" onclick="toggleChar(this, '别看空气，先打药。\n——木乃伊（嘴硬，但身体比谁都诚实）')">
+        <span class="char-icon">🧟</span>
+        <div class="char-name">木乃伊</div>
+        <div class="char-role">现队友 · 情感见证者</div>
+        <div class="char-tags">高冷吐槽｜偶尔闯祸｜讲义气</div>
+        <div class="char-desc">冷面笑匠，永远在拆台，却是小番茄最可靠的后盾。关键时刻，默默挪过来扔下急救包。</div>
+        <div class="char-quote"></div>
+      </div>
+      <div class="char-card reveal" onclick="toggleChar(this, '如果下次决赛圈还在这，\n我架枪，你收人头，稳赢。\n——老枪（三年前的留言）')">
+        <span class="char-icon">🎯</span>
+        <div class="char-name">老枪</div>
+        <div class="char-role">回忆角色 · 情感承载者</div>
+        <div class="char-tags">沉稳可靠｜话少心暖｜回忆符号</div>
+        <div class="char-desc">那个灰了一千零九十五天的ID。即使不会再上线，他的留言却原封不动地烙印进某人战术里。</div>
+        <div class="char-quote"></div>
+      </div>
+      <div class="char-card reveal" onclick="toggleChar(this, '番茄，你这打法也太帅了吧？\n——萌新（不知道背后的故事，但被气氛感染）')">
+        <span class="char-icon">🌱</span>
+        <div class="char-name">萌新</div>
+        <div class="char-role">旁观者 · 情感共鸣者</div>
+        <div class="char-tags">活泼好奇｜代入感强｜情绪放大器</div>
+        <div class="char-desc">什么都不懂，但莫名被气氛感染。"放烟花"那一刻跟得起劲又快乐。</div>
+        <div class="char-quote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STORY ===== -->
+<section id="story">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">STORY · 故事结构</span>
+      <div class="section-title">三段剧情</div>
+      <div class="section-rule"></div>
+    </div>
+
+    <!-- ACT 01 -->
+    <div class="story-block reveal" onclick="toggleAct(this)">
+      <span class="act-label">ACT 01 · 开场钩子</span>
+      <div class="story-title">大厅里的灰色的ID</div>
+      <div class="story-summary">三年没亮过的头像，说好的“下次天命圈”，让小番茄怀揣心事。</div>
+      <div class="expand-hint">▾ 点击展开详情</div>
+      <div class="story-body">
+        <div class="scene-note">画面：游戏大厅。小番茄对着一个三年前的组队邀请记录碎碎念。</div>
+        <div class="dialog-box">
+          <div class="bubble tomato" data-name="小番茄">“这货，说好下次决赛圈带我飞，结果人直接删号跑路了？”</div>
+          <div class="bubble mummy" data-name="木乃伊">“呵，男人的嘴，骗人的鬼。开不开？我赶着成盒呢。”</div>
+          <div class="bubble sys">小番茄罕见地没接话，默默点开了那个灰色ID“老枪”的资料。</div>
+        </div>
+        <div class="flashback">背景图：天堂度假村。上次在线：1095天前。</div>
+        <p class="story-para">一千零九十五天。三年整。画面停在那张熟悉的截图上。<br>木乃伊一手滑，进了匹配大厅。地图：雨林。</p>
+      </div>
+    </div>
+
+    <!-- ACT 02 -->
+    <div class="story-block reveal" onclick="toggleAct(this)">
+      <span class="act-label">ACT 02 · 情节发展</span>
+      <div class="story-title">回忆与现实的错位</div>
+      <div class="story-summary">出生点刷回天堂度假村。小番茄复刻旧战术，但身边换了人，一切都对不上。</div>
+      <div class="expand-hint">▾ 点击展开详情</div>
+      <div class="story-body">
+        <p class="story-para"><strong>巧合开局：</strong>小番茄本想秒退，但出生点“天堂度假村”一出现，TA的手就停了。</p>
+        <div class="flashback">“下次决赛圈还在这，我来架枪，你收人头，稳赢。”<br>——老枪，三年前</div>
+
+        <p class="story-para"><strong>回忆引发失落：</strong>战斗中，小番茄习惯性地喊出和老枪的经典配合。</p>
+        <div class="dialog-box">
+          <div class="bubble tomato" data-name="小番茄">“假拆真埋伏！往左！”</div>
+          <div class="bubble mummy" data-name="木乃伊">“花里胡哨，直接上啊。”</div>
+          <div class="bubble newbie" data-name="萌新">“番茄，你这打法好帅，跟谁学的绝招？”</div>
+          <div class="bubble tomato" data-name="小番茄">“跟一个……'消失'的传奇。”（操作明显顿了半秒）</div>
+        </div>
+
+        <p class="story-para"><strong>回忆与现实交错：</strong>遗迹区，队伍被伏击。小番茄丝血反杀后下意识看向身侧。那里本该是老枪架枪的位置，空的。</p>
+        <div class="dialog-box">
+          <div class="bubble mummy" data-name="木乃伊">（默默挪过来，扔下一个急救包）“别看了，没人。先打药。”</div>
+          <div class="bubble sys">笨拙的关心让小番茄愣了一下。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACT 03 -->
+    <div class="story-block reveal" onclick="toggleAct(this)">
+      <span class="act-label">ACT 03 · 情绪升华</span>
+      <div class="story-title">未尽之约，今日补上</div>
+      <div class="story-summary">决赛圈奇迹般地再次锁死在天堂度假村。与三年前那局完全重合。</div>
+      <div class="expand-hint">▾ 点击展开详情</div>
+      <div class="story-body">
+        <div class="flashback">“我X……真刷这儿了？！”</div>
+        <div class="dialog-box">
+          <div class="bubble tomato" data-name="小番茄">“信我一次，咱们不按常理出牌。”</div>
+          <div class="bubble mummy" data-name="木乃伊">“……步骤真多，麻烦。”（但操作异常专注）</div>
+        </div>
+        <p class="story-para">小番茄凭记忆，指挥队伍精准走向每一个约定好的点位，复现那套幻想过无数次的冠军战术。最后一枪，屏幕亮起....</p>
+        <div style="text-align:center; padding:24px 0; font-size:18px; font-weight:900; color:var(--gold-bright); letter-spacing:6px;">大吉大利 · 今晚吃鸡</div>
+        <p class="story-para">小番茄反常地没有欢呼，只是默默切出背包里的老枪最爱用的那把冷门武器——蝎式手枪。对着天空打光了所有子弹。</p>
+        <div class="dialog-box">
+          <div class="bubble sys">木乃伊愣了一下，换上手枪，朝同一片天空开火。萌新不明所以，开开心心地跟着“放烟花”。</div>
+          <div class="bubble tomato" data-name="小番茄">“看，天命圈。这次，咱们赢了。”</div>
+        </div>
+        <div class="flashback" style="margin-top:20px; border-color:rgba(212,175,55,0.4);">有些并肩，是记忆里的坐标。<br>致敬，所有来过我“战场”的你。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CLIMAX ===== -->
+<section id="climax">
+  <div class="container" style="text-align:center;">
+    <div class="section-header reveal" style="text-align:center;">
+      <span class="section-eyebrow">CLIMAX · 高潮爆发点</span>
+      <div class="section-title" style="display:inline-block;">天命圈</div>
+      <div class="section-rule" style="margin:14px auto 0;"></div>
+    </div>
+
+    <div class="circle-wrap reveal">
+      <div class="c-ring r1"></div>
+      <div class="c-ring r2"></div>
+      <div class="c-ring r3"></div>
+      <div class="c-ring r-core"><span>天堂<br>度假村</span></div>
+      <div class="map-ping" style="top:28%;left:18%;animation-delay:.1s;"></div>
+      <div class="map-ping" style="top:62%;left:72%;animation-delay:.8s;"></div>
+      <div class="map-ping" style="top:18%;left:64%;animation-delay:1.4s;"></div>
+      <div class="map-ping" style="top:74%;left:34%;animation-delay:.5s;"></div>
+    </div>
+
+    <div class="climax-headline reveal">决赛圈真的刷回来了。</div>
+    <div class="climax-copy reveal">三年前那局没打完的约定，在同一片地图，同一个点位，两名队友帮小番茄补上了。</div>
+    <div class="danmu reveal">「 我X……真刷这儿了？！ 」</div>
+
+    <div class="climax-stats">
+      <div class="c-stat reveal">
+        <div class="c-stat-icon">📍</div>
+        <div class="c-stat-label">同一地点</div>
+        <div class="c-stat-text">天堂度假村，三年后再回</div>
+      </div>
+      <div class="c-stat reveal">
+        <div class="c-stat-icon">⚡</div>
+        <div class="c-stat-label">相同战术</div>
+        <div class="c-stat-text">假拆真埋伏，点位一个不差</div>
+      </div>
+      <div class="c-stat reveal">
+        <div class="c-stat-icon">🔫</div>
+        <div class="c-stat-label">蝎式手枪</div>
+        <div class="c-stat-text">老枪最爱的那把，打光所有子弹</div>
+      </div>
+      <div class="c-stat reveal">
+        <div class="c-stat-icon">🎆</div>
+        <div class="c-stat-label">天空放烟花</div>
+        <div class="c-stat-text">木乃伊没说话，但默默跟随</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ANALYSIS ===== -->
+<section id="analysis">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">CORE · 创意内核</span>
+      <div class="section-title">笑点与共鸣</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="tab-row reveal">
+      <button class="tab-btn on" onclick="switchTab('resonance')">💔 共鸣点</button>
+      <button class="tab-btn" onclick="switchTab('laughs')">😄 笑点设计</button>
+    </div>
+    <div id="tab-resonance" class="tab-pane on">
+      <div class="ana-grid">
+        <div class="ana-card reveal">
+          <div class="ana-icon">👥</div>
+          <div class="ana-title">灰色好友列表</div>
+          <div class="ana-text">似乎永远不会变绿的头像，点进去还是三年前的截图。一切仿若物是人非。许多曾经拥有过“固排”的玩家都能与此共鸣。</div>
+        </div>
+        <div class="ana-card reveal">
+          <div class="ana-icon">📍</div>
+          <div class="ana-title">记忆里的坐标</div>
+          <div class="ana-text">那时在这儿我们说过的话，吃过的鸡与没吃过的鸡，天堂度假村只是载体。</div>
+        </div>
+        <div class="ana-card reveal">
+          <div class="ana-icon">🤫</div>
+          <div class="ana-title">宿命般的巧合</div>
+          <div class="ana-text">“我X，真刷这儿了？！”决赛圈刷回同一地点的概率低得离谱，但它就这么发生了。小番茄以为早已翻篇，但游戏偏偏给了一个重来的机会。</div>
+        </div>
+      </div>
+    </div>
+    <div id="tab-laughs" class="tab-pane">
+      <div class="ana-grid">
+        <div class="ana-card reveal">
+          <div class="ana-icon">🧟</div>
+          <div class="ana-title">高冷式插刀</div>
+          <div class="ana-text">小番茄深情回忆时，木乃伊冷冷来一句：“你那传奇，该不会是人机吧？”刀子嘴，豆腐心。</div>
+        </div>
+        <div class="ana-card reveal">
+          <div class="ana-icon">🧱</div>
+          <div class="ana-title">因专注而撞墙</div>
+          <div class="ana-text">嘴上“步骤真多，麻烦”，但因为太认真配合战术，直接走路撞了一堵墙。高冷人设碎了一地，反差萌拉满。</div>
+        </div>
+        <div class="ana-card reveal">
+          <div class="ana-icon">💊</div>
+          <div class="ana-title">别扭式关心</div>
+          <div class="ana-text">小番茄丝血时不说其他的话，默默挪过去，冷冷扔下急救包："别看了，没人。先打药。" 尽显木乃伊的柔软底色。</div>
+        </div>
+        <div class="ana-card reveal">
+          <div class="ana-icon">🎆</div>
+          <div class="ana-title">萌新跟风放烟花</div>
+          <div class="ana-text">完全搞不清楚为什么要打空弹匣，但看见两个队友都在做，就开开心心跟着放烟花了，打动观众。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOCIAL ===== -->
+<section id="social">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-eyebrow">VIRAL · 传播力分析</span>
+      <div class="section-title">评论区</div>
+      <div class="section-rule"></div>
+    </div>
+    <div class="social-wrap">
+      <div class="social-card reveal">
+        <div class="social-head">
+          <div class="social-avatar">🍅</div>
+          <div>
+            <div class="social-name">小番茄小剧场 · 第01集</div>
+            <div class="social-handle">天命圈之约 · 和平精英 · 袁清渠</div>
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-bottom:18px; letter-spacing:2px;">▍ 预判评论区</div>
+        <div class="comment reveal">
+          <div class="comment-user">@固排三年没上线的某人</div>
+          <div class="comment-text">兄弟，看到没？灰了三年的头像，是不是该亮一下了？</div>
+          <div class="comment-likes">🔥 8.4万 赞 · 置顶</div>
+        </div>
+        <div class="comment reveal">
+          <div class="comment-user">@AAA专业架枪王</div>
+          <div class="comment-text">狗子，你看到这个了吗。我还留着你的位置。就差你上线了。</div>
+          <div class="comment-likes">👍 3.2万 赞</div>
+        </div>
+        <div class="comment reveal">
+          <div class="comment-user">@被删号的战队</div>
+          <div class="comment-text">我们的"天堂度假村"在XX山坡那个桥头……每次经过那里都不敢看。</div>
+          <div class="comment-likes">💬 1.1万 赞 · 展开1208条回复</div>
+        </div>
+        <div class="viral-box reveal">
+          <span class="viral-label">传播裂变触发点</span>
+          <div class="viral-text">
+            → 玩家自发 @好友，形成“晒固排”的UGC内容潮<br>
+            → 晒各自属于自己的那个回忆坐标<br>
+            → “我们的约定是XX”接龙评论，自然形成情感共同体<br>
+            → “晒已变成灰色的好友列表”挑战，以游戏截图替代文字，提高情绪饱和度
+          </div>
+        </div>
+        <button class="copy-btn" id="copyBtn" onclick="doCopy()">📋 复制传播文案</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ENDING ===== -->
+<section id="ending">
+  <div class="ending-inner">
+    <div class="ending-friends reveal">
+      <div>● 木乃伊 &nbsp;&nbsp;&nbsp; 游戏中</div>
+      <div>● 萌新_01 &nbsp; 大厅</div>
+      <div class="gone">○ 老枪 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; · · · · ·</div>
+    </div>
+    <div class="ending-rule"></div>
+    <div class="ending-q1 reveal">有些并肩，是记忆里的坐标。</div>
+    <div class="ending-q2 reveal">致敬，所有来过我“战场”的你。</div>
+    <div class="ending-last reveal">这次的天命圈，咱们赢了！</div>
+    <button class="btn-gold reveal" onclick="go('hero')">↺ 再打一把</button>
+  </div>
+</section>
+
+<footer>
+  <div class="yqq-big">Qingqu</div>
+  <div class="yqq-sub">Designed &amp; Produced by Qingqu</div>
+  <div class="footer-copy">© 2026 小番茄小剧场项目</div>
+</footer>
+
+<script>
+  // 平滑滚动
+  function go(id) { document.getElementById(id)?.scrollIntoView({ behavior:'smooth' }); }
+
+  // 粒子背景
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random() * 3 + 1;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*10+7}s;animation-delay:${Math.random()*6}s;opacity:${Math.random()*.3+.1};`;
+    pc.appendChild(p);
+  }
+
+  // 滚动进度条
+  window.addEventListener('scroll', () => {
+    const el = document.getElementById('progress');
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    el.style.width = Math.min(100, pct) + '%';
+  });
+
+  // 角色卡片展开
+  function toggleChar(card, txt) {
+    const q = card.querySelector('.char-quote');
+    const open = q.classList.contains('open');
+    document.querySelectorAll('.char-quote').forEach(x => x.classList.remove('open'));
+    if (!open) { q.innerHTML = txt.replace(/\n/g,'<br>'); q.classList.add('open'); }
+  }
+
+  // 故事段落展开
+  function toggleAct(block) {
+    const body = block.querySelector('.story-body');
+    const hint = block.querySelector('.expand-hint');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    hint.textContent = isOpen ? '▾ 点击展开详情' : '▴ 收起';
+  }
+
+  // 标签切换
+  function switchTab(key) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+    document.getElementById('tab-' + key).classList.add('on');
+    event.currentTarget.classList.add('on');
+  }
+
+  // 复制文案
+  function doCopy() {
+    const text = '有些队友不会再上线，但他们永远在你的战术里。\n\n@你的固排 地图还在，战术还在，我还在。你呢？\n\n#和平精英 #小番茄小剧场 #天命圈之约 #固排去哪了';
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ 已复制！去找你的固排吧';
+      btn.classList.add('done');
+      setTimeout(() => { btn.textContent = '📋 复制传播文案'; btn.classList.remove('done'); }, 2800);
+    });
+  }
+
+  // 滚动渐入
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
